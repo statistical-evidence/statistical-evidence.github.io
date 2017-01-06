@@ -2,7 +2,7 @@
 layout: post
 title: "MathJax Example"
 modified:
-categories: statistical-methods
+categories: blog
 excerpt:
 tags: []
 image:
