@@ -1,0 +1,66 @@
+# Site wide configuration
+title: Data * Analysis + R
+locale: en_US
+description: "Blog of Daniel Marcelino"
+favicon: favicon.ico
+logo: null
+search: true
+url: "http://danielmarcelino.github.io"
+
+# Jekyll configuration
+
+permalink: /blog/:year/:title.html
+paginate_path: /page:num/
+markdown:    kramdown
+highlighter: rouge
+sass:
+  sass_dir: _sass
+  style: compressed
+gems:
+  - jekyll-sitemap
+
+kramdown:
+  auto_ids: true
+  footnote_nr: 1
+  entity_output: as_char
+  toc_levels: 1..2
+  enable_coderay: false
+
+coderay:
+  coderay_line_numbers: 
+  coderay_line_numbers_start: 1
+  coderay_tab_width: 4
+  coderay_bold_every: 10
+  coderay_css: class
+
+mathjax: true
+comments: true
+
+include: [".htaccess"]
+exclude: ["lib", "config.rb", "Capfile", "config", "log", "Rakefile", "Rakefile.rb", "tmp", "less", "*.sublime-project", "*.sublime-workspace", "test", "spec", "Gruntfile.js", "package.json", "node_modules", "Gemfile", "Gemfile.lock", "LICENSE", "README.md", "vendor"]
+
+twittershare: http://twitter.com/share
+
+# Site owner
+owner:
+  name: Daniel Marcelino
+  avatar: DSC02844.jpg
+  email: dmarcelino@live.com
+  disqus-shortname: "daniel-marcelino"
+  twitter: "dmarcelinobr"
+  facebook: "daniel.marcelino.796"
+  github: "danielmarcelino"
+  stackexchange: "http://stackoverflow.com/users/792000/daniel"
+  linkedin: "daniel-marcelino-80968656"
+  instagram: "dmarcelinobr"
+  flickr: #username
+  tumblr: #username
+  pinterest: #username
+  weibo: #userid
+  google:
+    plus: #username
+    analytics: UA-24186657-1
+    verify:
+    ad-client:
+    ad-slot:
+  bing-verify:

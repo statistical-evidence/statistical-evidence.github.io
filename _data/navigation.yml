@@ -1,0 +1,19 @@
+# Site navigation links
+
+- title: About
+  url: /about/
+
+- title: Blog
+  url: /blog/
+
+- title: Interests
+  url: /interests/
+
+- title: Random Walks
+  url: /randomwalks/
+
+- title: Resources
+  url: /resources/
+
+- title: Search
+  url: /search/
