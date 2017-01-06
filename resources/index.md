@@ -17,8 +17,3 @@ permalink: /resources/
 [David Robinson](http://varianceexplained.org)
 
 
-# Classes and Tutorials 
-
-[Analytics (EN)](http://danielmarcelino.github.io/resources/analytics/English)
-
-[Analytics (PT)](http://danielmarcelino.github.io/resources/analytics/Portuguese/)
