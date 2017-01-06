@@ -1,7 +1,7 @@
 ---
 layout: page
-title: Blog
-excerpt: "An archive of blog posts sorted by date."
+title: Interests
+excerpt: "about my interests."
 search_omit: true
 ---
 
