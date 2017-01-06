@@ -36,13 +36,13 @@ exclude: ["lib", "config.rb", "Capfile", "config", "log", "Rakefile", "Rakefile.
 
 # Site owner
 owner:
-  name: Your Name
-  avatar: bio-photo.jpg
-  email: you@email.com
+  name: Chetan Prajapati
+  avatar: site-logo.png
+  email: chetan.prajapati@live.com
   disqus-shortname:
-  twitter: #username
-  facebook: #username
-  github: #username
+  twitter: chetan_oxforduk
+  facebook: madhavmedstats
+  github: statistical-evidence
   stackexchange: #http://stackoverflow.com/users/123456/username
   linkedin: #username
   instagram: #username
