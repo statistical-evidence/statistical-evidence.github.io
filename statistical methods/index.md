@@ -26,7 +26,7 @@ image:
 
 ---
 
-## Baysian Inference
+## Bayesian Inference
 
 
 
