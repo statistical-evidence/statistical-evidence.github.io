@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "KnitPost <- function(input, outfile, figsfolder, cachefolder, base.url=\"/\") {\n        # this function is a modified version of an example here:\n        # http://jfisher-usgs.github.com/r/2012/07/03/knitr-jekyll/\n        require(knitr);\n        opts_knit$set(base.url = base.url)\n        fig.path <- paste0(figsfolder, sub(\".Rmd$\", \"\", basename(input)), \"/\")\n        cache.path <- file.path(cachefolder, sub(\".Rmd$\", \"\", basename(input)), \"/\")\n\n        opts_chunk$set(fig.path = fig.path)\n        opts_chunk$set(cache.path = cache.path)\n        opts_chunk$set(fig.cap = \"center\")\n        render_jekyll()\n        knit(input, outfile, envir = parent.frame())\n        # brocks::htmlwidgets_deps(input, always = TRUE)\n}\n\nknit_folder <- function(infolder, outfolder, figsfolder, cachefolder) {\n        for (infile in list.files(infolder, pattern = \"*.Rmd\", full.names = TRUE)) {\n                pattern = \"\\\\d\\\\d\\\\d\\\\d\\\\-\\\\d\\\\d\\\\-\\\\d\\\\d\\\\-\"\n                print(infile)\n                # folder = ifelse(grepl(pattern, infile), outfolder, \"pages\")\n                outfile = paste0(outfolder, \"/\", sub(\".Rmd$\", \".md\", basename(infile)))\n                print(outfile)\n\n                # knit only if the input file is the last one modified\n                if (!file.exists(outfile) |\n                    file.info(infile)$mtime > file.info(outfile)$mtime) {\n                        KnitPost(infile, outfile, figsfolder, cachefolder)\n                }\n        }\n}\n\n# 08-06-2016-yet-the-worst-olympic-chart.Rmd\n# setwd(\"/Users/daniel/danielmarcelino.github.io\")\nknit_folder(\"_R\", \"_posts\", \"img/\", \"_caches/\")\n#knit_folder(\"_R/drafts\", \"_drafts\", \"figs/drafts/\")\n",
+    "created" : 1483729670109.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2811733914",
+    "id" : "1B1C0F71",
+    "lastKnownWriteTime" : 1483607224,
+    "last_content_update" : 1483607224,
+    "path" : "~/GitHub/statistical-evidence.github.io/_scripts/knitpages.R",
+    "project_path" : "_scripts/knitpages.R",
+    "properties" : {
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
