@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Blog
+comments :true
 excerpt: "An archive of blog posts sorted by date."
 search_omit: true
 ---

@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Articles
+comments : true
 excerpt: "An archive of articles sorted by date."
 search_omit: true
 ---
