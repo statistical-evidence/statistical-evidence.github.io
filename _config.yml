@@ -52,7 +52,7 @@ owner:
   pinterest: #username
   weibo: #userid
   google:
-    plus: #username
+    plus: https://plus.google.com/116165864956144991837
     analytics:
     verify:
     ad-client:
