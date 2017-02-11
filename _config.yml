@@ -1,8 +1,8 @@
 # Site wide configuration
 
-title: World of statistical modelling
+title: Statistical Modelling in Health and Medicine
 locale: en_US
-description: Work is in progress ! back soon!!
+description: Theory & Application with R 
 logo: site-logo.png
 search: true
 url: https://statistical-evidence.github.io/
