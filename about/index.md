@@ -30,5 +30,5 @@ Gujarat University,India
 > - Theoretical understanding statistical methods  
 > - Role of Bayesian statistics in medicine and health care  
 > - Statistical genetics  
-> - Prevalence of bad research in today's health-care environment
+
 
