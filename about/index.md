@@ -8,13 +8,27 @@ image:
   
 ---
 
-Thank you for visiting my personal website. Here I generally post about my experience with statistical software R and statistical modelling  which are relevant to medicine and health.
 
+## Education
 
-## Here you will find:
+##### MSc Medical Statistics
+University of Leicester  
+2016-2017
 
-* Use of R and Rmarkdown in medical statistics
-* Theoretical understanding statistical methods
-* Role of Bayesian statistics in medicine and health care
-* Theoretical issues in statistical modelling
+#####  PGDip Public Health
+Oxford Brooks University  
+2009-10
+  
+#####  BDS Dentistry
+Gujarat University,India
+2003-2008  
+
+##### I generally post about
+
+> - R programming  
+> - Statistical  modelling    
+> - Theoretical understanding statistical methods  
+> - Role of Bayesian statistics in medicine and health care  
+> - Statistical genetics  
+> - Prevalence of bad research in today's health-care environment
 
