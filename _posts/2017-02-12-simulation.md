@@ -4,6 +4,7 @@ title: "Missing data mechanism and its impact on model estimates"
 excerpt: "Simulation study from fitted linear model"
 date: "2017-02-13 10:06:13"
 category: statistical-methods
+share: true
 published: true
 comments: true
 tags: [simulation, missing data, dplyr, MCAR, multiple regression, bivariate, distribution, linear model, MNAR, MAR, bias, randomization] 
