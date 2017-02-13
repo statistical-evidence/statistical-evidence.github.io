@@ -1,0 +1,323 @@
+---
+layout: post
+title: "Missing data mechnism and its impact on model estimates"
+excerpt: "Simulation study from fitted linear model"
+date: "`r Sys.time()`"
+output: 
+  html_document: 
+    highlight: haddock
+    theme: readable
+category: statistical-methods
+published: true
+comments: true
+tags: [simulation, missing data, dplyr, MCAR, multiple regression, bivariate, distribution, linear model, MNAR, MAR, bias, randomization] 
+---
+
+Today we will asses the impact of missing data on estimates from fitting linear regression model. 
+
+First we will generate to covariate **X1** and **X2** from bivariate normal distribution with specific correlation **r**. And, then generate **Y** with known value of \(\beta_{0}\) and \(\beta_{1}\) and some errors.
+
+Then in each dataset, we will impute some missing data with known missing data mechanism **(MCAR, MAR and MNAR)** and will see whether **simulation** (generating data 1000 times) will enable us to estimate true value of parameters or not ( means biased or unbiased) in data with missing values.
+
+
+```{r setup, include= F, warning=FALSE,message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+We will need following packages,
+
+```{r, message=FALSE, warning=FALSE}
+require(dplyr)
+require(ggplot2)
+require(broom)
+require(knitr)
+require(cowplot)
+require(pander)
+require(mvtnorm)
+```
+
+
+Let first write function which will generate **x1** and **x2** with specified correlation **r**.
+
+```{r}
+
+bivariate_normal2 <- function(r,n) {
+
+Cov_matrix <- matrix(c(1,r,r,1), nrow = 2)
+create_data <-rmvnorm(mean = c(0,0), sig = Cov_matrix, n = n)
+x1 <- create_data[,1]
+x2 <-create_data[,2]
+create_data <- data.frame(x1,x2)
+return(create_data)
+
+}
+```
+
+From above function we are generating **n=100** observations of **x1** and **x2** with correlation **0.5**.
+
+```{r}
+
+set.seed(12)
+df <- bivariate_normal2(0.5,100)
+cor(df$x1,df$x2)
+```
+
+Now generating y with $$ \beta_{0}=2 $$,$$ \beta_{1}=-1 $$,$$ \beta_{2}=0.5 $$ and error $$ e_{i} $$ with mean 0 and standard deviation 1.
+
+```{r}
+set.seed(1252)
+error <- rnorm(100,0,1)
+y <- 2 + (-1)*(df$x1) + 0.5*(df$x2) + error
+df <- mutate(df,y=y)
+
+```
+Now we are ready with the data
+
+```{r, echo=TRUE}
+kable(summary(df))
+```
+
+
+### **Scenarios:** 
+#### **1. No missing data**
+
+#### what if data did not contain any missing value? what will be the our estimates from fitted regrression model?
+
+```{r, echo=TRUE}
+Model1 <- lm(y ~ x1 +x2, data=df)
+kable(tidy(Model1, conf.int = T))
+```
+
+
+Model provides estimate of $$ \beta_{0}=2.04 $$,$$ \beta_{1}=-0.77 $$,$$ \beta_{2}=0.66 $$. Keep note of standard errors and confidence intervals.We will require it later stage when we asses impact of missing data.  
+
+What we see here estimates are not exactly the same from which we simulated the data. It is random variation.
+
+**Let see what will be the estimates if we simulate above dataset 1000 times and fit model to each dataset.**
+
+```{r}
+Models <- list()
+beta_0 <- vector()
+beta_1 <- vector()
+beta_2 <- vector()
+
+
+for ( i in 1:1000) {
+  
+      dfs <- bivariate_normal2(0.5,100)
+      error <- rnorm(100,0,1)
+      dfs <- mutate(dfs,y=2 -1*dfs$x1 +0.5*dfs$x2 + error)
+      Models[[i]] <- lm(y~x1+x2,data = dfs)
+      beta_0[i] <- Models[[i]]$coef[1]
+      beta_1[i] <- Models[[i]]$coef[2]
+      beta_2[i] <- Models[[i]]$coef[3]
+  
+}
+```
+
+
+```{r, echo=TRUE}
+results <-matrix(c(mean(beta_0),mean(beta_1),mean(beta_2),quantile(beta_0,probs = 0.025),quantile(beta_1,probs = 0.025),quantile(beta_2,probs = 0.025),quantile(beta_0,probs = 0.975),quantile(beta_1,probs = 0.975),quantile(beta_2,probs = 0.975)),nrow = 3,ncol=3)
+dimnames(results) <-list(c("beta_0","beta_1","beta_2"),c("mean","CI-L","CI-U"))
+```
+```{r}
+kable(results)
+```
+
+
+As we see, estimates are equivalent to $$ \beta_{0}=2 $$,$$ \beta_{1}=-1 $$,$$ \beta_{2}=0.5 $$ through which we had fitted model.
+
+#### **2. MCAR (Missing Compeletely At Random) dataset**
+
+#### **what if data contain missing values as per MCAR mechnism?**
+
+In this scenario, we first Make each observation of **x1** missing completely at random (MCAR) with **probability 0.5** and then fit the linear model to this reduced data set.
+
+```{r}
+MCAR_df <- data.frame(df)
+set.seed(873)
+mcar_x1 <- rbinom(100,1,prob = 0.5)
+MCAR_df$x1[mcar_x1 == 1] <- NA
+kable(summary(MCAR_df))
+```
+
+
+Missingness mechanism in this dataset is missing completely at random(MCAR) because the missingness of observations **X1** is not depends on other observed (and unobserved) variables data. MCAR data have **less power** because estimation based on reduced sample size.
+
+```{r}
+Model2 <- lm(y ~ x1 +x2, data=MCAR_df)
+kable(tidy(Model2, conf.int=T))
+```
+
+
+"lm" commnad in R automatrically remove entire row with missing values (mean only includes complate cases).You can see, compare to previous scenario, now **standard errors are high** and **high uncertainity in estimates(wider confidence Interval)**.But still there is no evidence of estimates beings biased.
+
+**Let see what will be the estimates if we simulate above dataset 1000 times and fit model to each dataset.**
+
+```{r}
+Models <- list()
+beta_0 <- vector()
+beta_1 <- vector()
+beta_2 <- vector()
+
+
+for ( i in 1:1000) {
+  
+      dfs <- bivariate_normal2(0.5,100)
+      error <- rnorm(100,0,1)
+      dfs <- mutate(dfs,y=2 -1*dfs$x1 +0.5*dfs$x2 + error)
+      dfs <- mutate(dfs,MCAR = rbinom(100,1,prob = 0.5))
+      
+      dfs <- mutate(dfs,x1 = ifelse(MCAR==1,x1,NA))
+      
+      Models[[i]] <- lm(y~x1+x2,data = dfs)
+      beta_0[i] <- Models[[i]]$coef[1]
+      beta_1[i] <- Models[[i]]$coef[2]
+      beta_2[i] <- Models[[i]]$coef[3]
+  
+}
+```
+
+
+```{r, echo=TRUE}
+results <-matrix(c(mean(beta_0),mean(beta_1),mean(beta_2),quantile(beta_0,probs = 0.025),quantile(beta_1,probs = 0.025),quantile(beta_2,probs = 0.025),quantile(beta_0,probs = 0.975),quantile(beta_1,probs = 0.975),quantile(beta_2,probs = 0.975)),nrow = 3,ncol=3)
+dimnames(results) <-list(c("beta_0","beta_1","beta_2"),c("mean","CI-L","CI-U"))
+```
+```{r}
+kable(results)
+```
+
+
+Simulating this MCAR dataset 1000 times and fitting linear model to each dataset, shows that estimates are similler from which we have simulated data even there is presence  MCAR missing data. So simulation of MCAR dataset many times generally do not give biased estiamtes.
+
+
+
+#### **3. MAR  (Missing At Random) dataset**
+
+#### **what if data contain missing values as per MAR mechnism?**
+
+In this scenario, we first Make each observation of **x1** missing dependent on the value of **x2**. To do this make x1 missing with **probability 0.5** if **x2 < 0**.
+
+```{r}
+MAR_df <- data.frame(df)
+MAR_x1_x2 <- vector()
+set.seed(4578)
+for ( i in 1:100) {
+  if (MAR_df$x2[i] < 0) {MAR_x1_x2[i] <- rbinom(1,1,prob=0.5)}
+  if (MAR_df$x2[i] > 0) {MAR_x1_x2[i] <-  rbinom(1,1,prob = 1)}
+}
+
+MAR_df$x1[MAR_x1_x2 == 1] <- NA
+kable(summary(MAR_df))
+```
+
+
+missing values in **x1** which are depedent on value of **X2**. Missingness mechanism in this dataset is missing at random(MAR) because of probability of observation is missing in **X1** is depends on **observed values-(in X2)** in datasets. 
+
+```{r}
+Model3 <- lm(y ~ x1 +x2, data=MAR_df)
+kable(tidy(Model3, conf.int=T))
+```
+
+
+You can see, compare to MCAR dataset, now standard errors are almost **3 times larger** and **very high uncertainity in estimates(wider confidence Interval)**.But still there is no evidence of estimates beings biased.
+
+**Let see what will be the estimates if we simulate above dataset 1000 times and fit model to each dataset.**
+
+```{r}
+Models <- list()
+beta_0 <- vector()
+beta_1 <- vector()
+beta_2 <- vector()
+
+
+for ( i in 1:1000) {
+  
+      dfs <- bivariate_normal2(0.5,100)
+      error <- rnorm(100,0,1)
+      dfs <- mutate(dfs,y=2 -1*dfs$x1 +0.5*dfs$x2 + error)
+      dfs <- mutate(dfs,MAR = ifelse(x2<0,rbinom(1,1,0.5),rbinom(1,1,1)))
+      
+      dfs <- mutate(dfs,x1 = ifelse(MAR==1,x1,NA))
+      
+      Models[[i]] <- lm(y~x1+x2,data = dfs)
+      beta_0[i] <- Models[[i]]$coef[1]
+      beta_1[i] <- Models[[i]]$coef[2]
+      beta_2[i] <- Models[[i]]$coef[3]
+  
+}
+```
+
+```{r, echo=TRUE}
+results <-matrix(c(mean(beta_0),mean(beta_1),mean(beta_2),quantile(beta_0,probs = 0.025),quantile(beta_1,probs = 0.025),quantile(beta_2,probs = 0.025),quantile(beta_0,probs = 0.975),quantile(beta_1,probs = 0.975),quantile(beta_2,probs = 0.975)),nrow = 3,ncol=3)
+dimnames(results) <-list(c("beta_0","beta_1","beta_2"),c("mean","CI-L","CI-U"))
+```
+```{r}
+kable(results)
+```
+
+
+#### **4. MNAR  (Missing Not At Random) dataset**
+
+#### **what if data contain missing values as per MNAR mechnism?
+
+In this scenario, we will make the **response variable**, **y**,
+missing with **probability 0.75** if **y** is **less than 2**.
+
+```{r}
+MNAR_df <- df
+set.seed(3659)
+MNAR_y <- vector()
+for ( i in 1:100) {
+  if (MNAR_df$y[i] < 2){ MNAR_y[i] <- rbinom(1,1,0.75)}
+  if (MNAR_df$y[i] > 2){ MNAR_y[i] <- rbinom(1,1,1)}
+}
+MNAR_df$y[MNAR_y == 1] <- NA
+summary(MNAR_df)
+```
+
+ Missingness mechanism in dataset is missing not at random(MNAR). As word suggest missingness is **neither MCAR nor MAR** (as missingness MNAR depends on unobserved, unrecorded observations)
+
+```{r}
+Model4 <- lm(y ~ x1 +x2, data=MNAR_df)
+kable(tidy(Model4, conf.int=T))
+```
+
+
+**Let see what will be the estimates if we simulate above dataset 1000 times and fit model to each dataset.**
+
+```{r}
+Models <- list()
+beta_0 <- vector()
+beta_1 <- vector()
+beta_2 <- vector()
+
+
+for ( i in 1:1000) {
+  
+      dfs <- bivariate_normal2(0.5,100)
+      error <- rnorm(100,0,1)
+      dfs <- mutate(dfs,y=2 -1*dfs$x1 +0.5*dfs$x2 + error)
+      dfs <- mutate(dfs,MNAR = ifelse(y<2,rbinom(1,1,0.75),rbinom(1,1,1)))
+      
+      dfs <- mutate(dfs,y = ifelse(MNAR==1,y,NA))
+      
+      Models[[i]] <- lm(y~x1+x2,data = dfs)
+      beta_0[i] <- Models[[i]]$coef[1]
+      beta_1[i] <- Models[[i]]$coef[2]
+      beta_2[i] <- Models[[i]]$coef[3]
+  
+}
+```
+
+```{r, echo=TRUE}
+results <-matrix(c(mean(beta_0),mean(beta_1),mean(beta_2),quantile(beta_0,probs = 0.025),quantile(beta_1,probs = 0.025),quantile(beta_2,probs = 0.025),quantile(beta_0,probs = 0.975),quantile(beta_1,probs = 0.975),quantile(beta_2,probs = 0.975)),nrow = 3,ncol=3)
+dimnames(results) <-list(c("beta_0","beta_1","beta_2"),c("mean","CI-L","CI-U"))
+```
+
+```{r}
+kable(results)
+```
+
+
+As you see now, even simulation did not give original estimates- **did not remove bias**. That has relation with **randomisation**. If sample are **not random** ( random when each individual in population has equal chanse of selection in sample), there will always possibility of bias which even **cant be corrected by simulation**. Lesson learned !
